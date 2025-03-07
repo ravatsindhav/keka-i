@@ -27,6 +27,6 @@ async function bootstrap() {
   Logger.log(`~ Application is running on: ${url}`);
   Logger.log(`~ Swagger is available at: ${swaggerUrl}`);
 
-  await open(swaggerUrl);
+  //await open(swaggerUrl);
 }
 bootstrap();
