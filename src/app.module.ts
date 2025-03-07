@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PdfExtractionModule } from './pdf-extraction/pdf-extraction.module';
-import { UserQueryController } from './user-query/user-query.controller';
-import { UserQueryService } from './user-query/user-query.service';
+import { PdfExtractionModule } from './information-extraction/pdf-extraction/pdf-extraction.module';
 import { UserQueryModule } from './user-query/user-query.module';
 import configuration from './config';
+import { WebScrapingModule } from './information-extraction/web-scraping/web-scraping.module';
 
 @Module({
   imports: [
@@ -14,6 +13,7 @@ import configuration from './config';
     }),
     PdfExtractionModule,
     UserQueryModule,
+    WebScrapingModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
