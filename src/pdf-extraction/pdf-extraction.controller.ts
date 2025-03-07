@@ -1,4 +1,4 @@
-import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Post, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PdfExtractionService } from './pdf-extraction.service';
 import { diskStorage } from 'multer';
@@ -10,7 +10,7 @@ import { Multer } from 'multer';
 export class PdfExtractionController {
   constructor(private readonly pdfExtractionService: PdfExtractionService) {}
 
-  @Post('extract-text')
+  @Post('extract-data')
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
       destination: './uploads',
@@ -21,17 +21,35 @@ export class PdfExtractionController {
     }),
     fileFilter: (req, file, cb) => {
       if (!file.mimetype.includes('pdf')) {
-        return cb(new Error('Only PDF files are allowed'), false);
+        return cb(new BadRequestException('Only PDF files are allowed'), false);
       }
       cb(null, true);
     }
   }))
-  async extractText(@UploadedFile() file: Multer.File) { 
+  async extractData(@UploadedFile() file: Multer.File) { 
     if (!file) {
-      return { message: 'No file uploaded' };
+      throw new BadRequestException('No file uploaded');
     }
 
-    const text = await this.pdfExtractionService.extractTextFromPdf(file.path);
-    return { extractedText: text };
+    // Extract text from PDF
+    const extractedText = await this.pdfExtractionService.extractTextFromPdf(file.path);
+    
+    // Extract images from PDF & process them
+    const extractedImages = await this.pdfExtractionService.extractImagesFromPdf(file.path);
+    const imageAnalysisResults = await Promise.all(
+      extractedImages.map(async (imagePath) => ({
+        imagePath,
+        text: await this.pdfExtractionService.extractTextFromImage(imagePath),
+        aiAnalysis: await this.pdfExtractionService.analyzeImageWithAI(imagePath),
+      }))
+    );
+
+    // Combine extracted data
+    const fullText = extractedText + ' ' + imageAnalysisResults.map(res => res.text).join(' ');
+    
+    // Generate embeddings & store
+    await this.pdfExtractionService.generateAndStoreEmbeddings(fullText, file.filename);
+
+    return { extractedText, imageAnalysisResults, message: 'PDF processed successfully' };
   }
 }
