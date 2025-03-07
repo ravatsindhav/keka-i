@@ -13,7 +13,7 @@ export class PdfExtractionService {
     apiKey: process.env.PINECONE_API_KEY,
   });
 
-  // 🔹 Extract text from PDF
+  //  Extract text from PDF
   async extractTextFromPdf(filePath: string): Promise<string> {
     try {
       const dataBuffer = fs.readFileSync(filePath);
@@ -24,7 +24,7 @@ export class PdfExtractionService {
     }
   }
 
-  // 🔹 Extract images from PDF
+  // Extract images from PDF
   async extractImagesFromPdf(filePath: string): Promise<string[]> {
     try {
       const pdfData = fs.readFileSync(filePath);
@@ -150,7 +150,7 @@ export class PdfExtractionService {
   async generateAndStoreEmbeddings(text: string, id: string) {
     try {
       const embeddingResponse = await this.openai.embeddings.create({
-        model: 'text-embedding-ada-002',
+        model: 'text-embedding-3-large',
         input: text,
       });
 
