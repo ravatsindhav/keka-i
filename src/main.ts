@@ -7,6 +7,7 @@ import open from 'open';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   const configService = app.get(ConfigService);
   const port: number = configService.get<number>('port') as number;
   const server: any = configService.get<string>('server') as any;
