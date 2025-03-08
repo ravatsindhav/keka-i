@@ -157,7 +157,17 @@ export class PdfExtractionService {
       const embedding = embeddingResponse.data[0].embedding;
 
       const index = this.pinecone.index(process.env.PINECONE_INDEX, process.env.PINECONE_INDEX_HOST);
-      await index.upsert([{ id, values: embedding }]);
+
+      const vector = {
+        id: id,
+        values: embedding, // Ensure embeddings are stored
+        metadata: {
+          source: id,
+          text: text,
+        },
+      };
+
+      await index.upsert([vector]);
 
       return 'Embedding stored successfully!';
     } catch (error) {
