@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from 'openai';
 import { UserQuery } from './user-query.model';
@@ -38,7 +38,8 @@ export class UserQueryService {
         }));
 
     } catch (error) {
-      throw new BadRequestException('Error querying embeddings');
+      Logger.log('Error querying embeddings:', error);
+      throw new BadRequestException(error, 'Error querying embeddings');
     }
   }
 

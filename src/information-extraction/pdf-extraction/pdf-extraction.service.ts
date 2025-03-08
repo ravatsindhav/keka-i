@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as pdfParse from 'pdf-parse';
 import * as Tesseract from 'tesseract.js';
@@ -20,7 +20,8 @@ export class PdfExtractionService {
       const data = await pdfParse(dataBuffer);
       return data.text;
     } catch (error) {
-      throw new BadRequestException('Error extracting text from PDF');
+      Logger.log('Error extracting text from PDF', error);
+      throw new BadRequestException(error, 'Error extracting text from PDF');
     }
   }
 
@@ -79,7 +80,7 @@ export class PdfExtractionService {
                   extractedImages.push(`data:image/png;base64,${base64Data}`);
                 }
               } catch (err) {
-                console.warn('Could not extract image:', err);
+                Logger.log('Could not extract image:', err);
                 // Continue with other images even if one fails
               }
             }
@@ -89,7 +90,7 @@ export class PdfExtractionService {
 
       return extractedImages;
     } catch (error) {
-      console.error('Error extracting images:', error);
+      Logger.log('Error extracting images:', error);
       throw new BadRequestException('Error extracting images from PDF');
     }
   }
@@ -100,6 +101,7 @@ export class PdfExtractionService {
       const { data } = await Tesseract.recognize(imagePath, 'eng');
       return data.text;
     } catch (error) {
+      Logger.log('Error extracting text from image:', error);
       throw new BadRequestException('Error extracting text from image');
     }
   }
@@ -171,7 +173,8 @@ export class PdfExtractionService {
 
       return 'Embedding stored successfully!';
     } catch (error) {
-      throw new BadRequestException('Error generating or storing embeddings');
+      Logger.log('Error generating or storing embeddings:', error);
+      throw new BadRequestException(error, 'Error generating or storing embeddings');
     }
   }
 }
