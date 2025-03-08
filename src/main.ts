@@ -3,7 +3,6 @@ import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import open from 'open';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,14 +19,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(port, server);
+  await app.listen(port || 2000, server);
 
   const url = await app.getUrl();
   const swaggerUrl = `${url}/api`;
 
   Logger.log(`~ Application is running on: ${url}`);
   Logger.log(`~ Swagger is available at: ${swaggerUrl}`);
-
-  //await open(swaggerUrl);
 }
 bootstrap();
