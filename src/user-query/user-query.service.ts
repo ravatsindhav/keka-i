@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from 'openai';
+import { UserQuery } from './user-query.model';
 
 @Injectable()
 export class UserQueryService {
@@ -41,9 +42,9 @@ export class UserQueryService {
     }
   }
 
-  async generateResponse(query: string) {
+  async generateResponse(query: UserQuery) {
     // Step 1: Get relevant embeddings from Pinecone
-    const relevantDocs = await this.queryPinecone(query);
+    const relevantDocs = await this.queryPinecone(query.message);
 
     // Step 2: Extract relevant text (if stored in metadata)
     const context = relevantDocs.map(doc => doc.metadata?.text).join('\n');
@@ -53,7 +54,7 @@ export class UserQueryService {
       model: 'gpt-4',
       messages: [
         { role: 'system', content: 'You are Keka Intelligence, an AI for Keka that provides information based on stored embeddings.' },
-        { role: 'user', content: `Context:\n${context}\n\nQuery: ${query}` },
+        { role: 'user', content: `Context:\n${context}\n\nQuery: ${query.message}` },
       ],
     });
 
