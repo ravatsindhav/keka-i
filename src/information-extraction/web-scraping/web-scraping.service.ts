@@ -112,10 +112,22 @@ export class WebScrapingService {
           continue;
         }
 
+        const embeddingVector = await embeddings.embedQuery(doc.pageContent);
+
+        if (!embeddingVector || embeddingVector.length === 0) {
+          this.logger.error(`Failed to generate embeddings for ${doc.metadata.source}`);
+          continue;
+        }
+
+        this.logger.log(`Embedding generated for ${doc.metadata.source}: ${embeddingVector.slice(0, 5)}...`); // Log first 5 values
+
         const vector = {
           id: doc.metadata.id,
-          values: await embeddings.embedQuery(doc.pageContent),
-          metadata: doc.metadata,
+          values: embeddingVector, // Ensure embeddings are stored
+          metadata: {
+            source: doc.metadata.source,
+            text: doc.pageContent,
+          },
         };
 
         const pineconeIndex = this.pinecone.Index(this.indexName);
@@ -127,6 +139,7 @@ export class WebScrapingService {
       this.logger.error(`Indexing error: ${error.message}`);
     }
   }
+
 
 
   async query(query: string, topK: number = 5) {

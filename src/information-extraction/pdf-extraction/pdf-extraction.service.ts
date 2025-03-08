@@ -38,17 +38,17 @@ export class PdfExtractionService {
 
         const xObjectsObj = resources.get(PDFName.of('XObject'));
         if (!xObjectsObj) continue;
-        
+
         // Make sure we have a dictionary
         if (!(xObjectsObj instanceof PDFDict)) continue;
-        
+
         const xObjects = xObjectsObj as PDFDict;
         const xObjectKeys = xObjects.keys();
 
         for (const key of xObjectKeys) {
           const xObjectRef = xObjects.get(key);
           if (!xObjectRef) continue;
-          
+
           // We need to handle both direct objects and references
           let xObject;
           if (xObjectRef instanceof PDFRef) {
@@ -56,22 +56,22 @@ export class PdfExtractionService {
           } else {
             xObject = xObjectRef;
           }
-          
+
           // Check if it's an image by looking at the Subtype
           if (xObject instanceof PDFDict) {
             const subtype = xObject.get(PDFName.of('Subtype'));
             const isImage = subtype && subtype.toString() === '/Image';
-            
+
             if (isImage) {
               try {
                 // Create a new PDF document containing just this page
                 const newPdf = await PDFDocument.create();
                 // Embed the page but don't need to store the reference
                 await newPdf.embedPages([page]);
-                
+
                 // Convert to PNG format
                 const pngBytes = await newPdf.saveAsBase64({ dataUri: true });
-                
+
                 // Extract just the base64 part without the data URI prefix
                 const base64Parts = pngBytes.split(',');
                 if (base64Parts.length > 1) {
@@ -109,7 +109,7 @@ export class PdfExtractionService {
     try {
       // For data URIs, we need to handle them differently than file paths
       let base64Image: string;
-      
+
       if (imagePath.startsWith('data:image')) {
         // Extract the base64 part from the data URI
         base64Image = imagePath.split(',')[1];
@@ -154,9 +154,9 @@ export class PdfExtractionService {
         input: text,
       });
 
-      const embedding = embeddingResponse.data[0].embedding; 
+      const embedding = embeddingResponse.data[0].embedding;
 
-      const index = this.pinecone.index(process.env.PINECONE_INDEX, process.env.PINECONE_INDEX_HOST); 
+      const index = this.pinecone.index(process.env.PINECONE_INDEX, process.env.PINECONE_INDEX_HOST);
       await index.upsert([{ id, values: embedding }]);
 
       return 'Embedding stored successfully!';
