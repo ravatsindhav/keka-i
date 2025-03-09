@@ -2,9 +2,20 @@
   "name": "keka-i",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Ravat Sindhav",
   "private": true,
-  "license": "UNLICENSED",
+  "contributors": [
+    {
+      "name": "Ravat Sindhav",
+      "email": "ravat.s@keka.com",
+      "url": "https://github.com/ravat-s-keka"
+    },
+    {
+      "name": "Arpit Mishra",
+      "email": "arpit.m@keka.com",
+      "url": "https://github.com/arpitmishrakeka"
+    }
+  ],
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
